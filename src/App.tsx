@@ -10,9 +10,8 @@ import {
 } from '@web3modal/ethers/react'
 
 import { zkSyncTestnet } from "viem_zksync_chains"
-import { utils, BrowserProvider, Wallet } from "zksync2-js";
+import { utils, BrowserProvider } from "zksync2-js";
 import { gaslessPaymasterContract } from './paymaster-contract';
-import { ethers } from "ethers";
 
 const projectId = '5a99d9369e7d9d41d706df47234a30e1'
 if (!projectId) {
@@ -36,8 +35,8 @@ const usePaymasterHelper = async () => {
   return {
     gasPerPubdata: BigInt(utils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
     paymasterParams: {
-      paymaster: paymasterParams.paymaster as `0x${string}`,
-      paymasterInput: paymasterParams.paymasterInput as `0x${string}`
+      paymaster: paymasterParams.paymaster,// as `0x${string}`,
+      paymasterInput: paymasterParams.paymasterInput// as `0x${string}`
     }
   }
 };
@@ -75,20 +74,15 @@ export default function App() {
   const { address, chainId, isConnected } = useWeb3ModalAccount()
   const { walletProvider } = useWeb3ModalProvider()
 
-  //testnet acc
-  const PRIVATE_KEY = 'ac1e735be8536c6534bb4f17f06f6afc73b2b5ba84ac2cfb12f7461b20c0bbe3'
-
   async function onSendTransaction() {
     const provider = new BrowserProvider(walletProvider)
-    const ethProvider = ethers.getDefaultProvider("goerli");
-    const wallet = new Wallet(PRIVATE_KEY, provider, ethProvider);
 
     console.log(`Balance before: ${await provider.getBalance(address)}`);
     
     const params = usePaymasterHelper()
     console.log('sendTransaction ', provider)
-    const tx = await wallet.sendTransaction({
-      account: address,
+    const txReq = {
+      from: address,
       to: '0x36615Cf349d7F6344891B1e7CA7C72883F5dc049',
       maxFeePerGas: 250000000n,
       maxPriorityFeePerGas: 0n,
@@ -96,13 +90,13 @@ export default function App() {
       customData:{
          ...params,
       },
-      chain: zkSyncTestnet,
-      type: 113
-    });
+      type: utils.EIP712_TX_TYP
+    }
 
-    console.log('tx, ', tx)
-
-    await tx.wait()
+    const signer = await provider.getSigner()
+    console.log('signer ', signer)
+    const tx = await signer.sendTransaction(txReq)
+    console.log(tx)
     console.log(`Balance after: ${await provider.getBalance(address)}`);
   }
 
