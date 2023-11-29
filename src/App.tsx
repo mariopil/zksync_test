@@ -33,10 +33,12 @@ const usePaymasterHelper = async () => {
   );
 
   return {
-    gasPerPubdata: BigInt(utils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
-    paymasterParams: {
-      paymaster: paymasterParams.paymaster,// as `0x${string}`,
-      paymasterInput: paymasterParams.paymasterInput// as `0x${string}`
+    customData: {
+      gasPerPubdata: BigInt(utils.DEFAULT_GAS_PER_PUBDATA_LIMIT),
+      paymasterParams: {
+        paymaster: paymasterParams.paymaster,// as `0x${string}`,
+        paymasterInput: paymasterParams.paymasterInput// as `0x${string}`
+      }
     }
   }
 };
@@ -79,22 +81,18 @@ export default function App() {
 
     console.log(`Balance before: ${await provider.getBalance(address)}`);
     
-    const params = usePaymasterHelper()
-    console.log('sendTransaction ', provider)
+    const params = await usePaymasterHelper()
     const txReq = {
       from: address,
       to: '0x36615Cf349d7F6344891B1e7CA7C72883F5dc049',
       maxFeePerGas: 250000000n,
       maxPriorityFeePerGas: 0n,
       value: 100000,
-      customData:{
-         ...params,
-      },
-      type: utils.EIP712_TX_TYP
+      type: utils.EIP712_TX_TYP,
+      ...params,
     }
 
     const signer = await provider.getSigner()
-    console.log('signer ', signer)
     const tx = await signer.sendTransaction(txReq)
     console.log(tx)
     console.log(`Balance after: ${await provider.getBalance(address)}`);
