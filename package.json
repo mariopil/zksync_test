@@ -1,0 +1,18 @@
+{
+  "name": "@examples/react-ethers5",
+  "private": true,
+  "version": "3.3.2",
+  "scripts": {
+    "dev": "vite --port 3001",
+    "build:examples": "vite build"
+  },
+  "dependencies": {
+    "@web3modal/ethers": "^3.4.0",
+    "ethers": "5.7.2",
+    "viem_zksync_chains" : "link:viem_zksync_chains",
+    "zksync2-js": "^0.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.1.0"
+  }
+}
